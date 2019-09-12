@@ -11,4 +11,8 @@
     <remap from="image" to="/usb_cam/image_raw"/>
     <param name="autosize" value="true" />
   </node>-->
+
+<rosparam param="disable_pub_plugins">
+-'/usb_cam/image_raw/compressedDepth'"
+</rosparam>
 </launch>

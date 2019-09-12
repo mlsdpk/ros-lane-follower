@@ -36,6 +36,8 @@ class LaneDetection(object):
 	height = int(img.shape[0]*scale_percent/100)
 	dim = (width, height)
 	resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
+
+	resized_img = resized_img[75:,:]
 	return resized_img
 
     def findThreshold(self, img):
@@ -49,14 +51,14 @@ class LaneDetection(object):
 
         # Binarize the copy image with global thresholding
         binarized_image = np.zeros_like(blurred)
-        binarized_image[blurred>160] =1
+        binarized_image[blurred>120] =1
 
         # Morphological Transformations (Erosion & Dilation)
-        # kernel = np.ones((5,5), dtype=np.uint8)
-        # eroded_img = cv2.erode(binarized_image, kernel, iterations = 2)
-        # dilated_img = cv2.dilate(eroded_img, kernel, iterations = 5)
+        kernel = np.ones((3,3), dtype=np.uint8)
+        #eroded_img = cv2.erode(binarized_image, kernel)
+        dilated_img = cv2.dilate(binarized_image, kernel)
 
-        return binarized_image
+        return dilated_img
 
     def calculateContours(self, thresh_img, original_img):
 
