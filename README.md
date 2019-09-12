@@ -1,6 +1,6 @@
 [//]: # (Image References)
 [image_0]: img/robot_model.jpg
-[image_1]: img/system_architecture_diagram.jpg
+[image_1]: img/system_architecture_diagram.jpeg
 
 # Real-time Lane following using Computer Vision and ROS
 
