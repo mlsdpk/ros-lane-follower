@@ -64,6 +64,9 @@ class LaneDetection(object):
 
         img, contours, hierarchy = cv2.findContours(thresh_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
+        # ---------------------------------------------------------------------------
+        # Originally developed by OutOfTheBots
+        # (https://www.youtube.com/channel/UCCX7z2JENOSZ1mraOpyVyzg/about)
         if len(contours) > 0:
             blackbox = cv2.minAreaRect(contours[0])
             (x_min, y_min), (w_min, h_min), ang = blackbox
@@ -83,6 +86,7 @@ class LaneDetection(object):
                 cv2.putText(original_img, ang_msg, (130,25), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255,0,0), 1)
                 cv2.putText(original_img, err_msg, (130,50), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0,0,255), 1)
                 cv2.line(original_img, (int(x_min), 0), (int(x_min), thresh_img.shape[0]), (0,0,255), 1)
+        # ---------------------------------------------------------------------------
         else:
             cte = None
             angle = None

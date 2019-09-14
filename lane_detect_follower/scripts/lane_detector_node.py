@@ -34,16 +34,19 @@ class LaneDetectFollower(object):
         self.Ki = 0
         self.Kd = 0.05
 
-	self.wheel_base = 0.188 # m
-	self.wheel_radius = 0.0325
+        self.wheel_base = 0.188 # m
+        self.wheel_radius = 0.0325
 
         self.max_desire_linear_vel = 0.3 # m/s
-	self.max_omega = 33.51 # rad/s
+        self.max_omega = 33.51 # rad/s
         self.last_cte = 0
         self.angle_const = 0.01
 
         self.debug = False
-	self.counter = 1
+        self.counter = 1
+
+        # set to True if you want to manually update the PID gains
+        self.manual_update_pid = False
 
         # following block of code is for camera calibration
 
@@ -59,21 +62,22 @@ class LaneDetectFollower(object):
 
     def dynamic_reconfig_callback(self, config, level):
 
-        #self.Kp = config["Kp"]
-        #self.Ki = config["Ki"]
-        #self.Kd = config["Kd"]
+        if self.manual_update_pid:
+            self.Kp = config["Kp"]
+            self.Ki = config["Ki"]
+            self.Kd = config["Kd"]
 
         return config
 
     # Main Callback Function
     def camera_callback(self, data):
 
-	# Dividing frame rate by 3 (10fps)
-	if self.counter % 3 != 0:
-	    self.counter += 1
-	    return
-	else:
-	    self.counter = 1
+        # Dividing frame rate by 3 (10fps)
+        if self.counter % 3 != 0:
+            self.counter += 1
+            return
+        else:
+            self.counter = 1
 
         try:
             #### direct conversion to CV2 ####
@@ -93,15 +97,14 @@ class LaneDetectFollower(object):
         cte, angle, final_img = lane_detection_object.processImage(cv_image)
 
         cmd_vel = Twist()
-        if cte is not None and angle is not None:
- 	    angular_z = self.Kp * cte + self.Kd * (cte - self.last_cte)
-            self.last_cte = cte
 
+        if cte is not None and angle is not None:
+            angular_z = self.Kp * cte + self.Kd * (cte - self.last_cte)
+            self.last_cte = cte
             linear_x = self.max_desire_linear_vel
             angular_z = max(angular_z, -2.0) if angular_z < 0 else min(angular_z, 2.0)
         else:
-
-	    angular_z = self.Kp * self.last_cte * 1.9
+            angular_z = self.Kp * self.last_cte * 1.9
             linear_x = self.max_desire_linear_vel
             angular_z = max(angular_z, -2.0) if angular_z < 0 else min(angular_z, 2.0)
 
@@ -130,11 +133,11 @@ class LaneDetectFollower(object):
             else:
                 pwm_r = abs(pwm_r)
 
-	    print("w_l : " + str(w_l))
-	    print("pwm_l : " + str(pwm_l))
-	    print("w_r : " + str(w_r))
-	    print("pwm_r : " + str(pwm_r))
-	    print("----------")
+            print("w_l : " + str(w_l))
+            print("pwm_l : " + str(pwm_l))
+            print("w_r : " + str(w_r))
+            print("pwm_r : " + str(pwm_r))
+            print("----------")
 
         if lane_detection_object.draw_img:
             cv2.imshow("Original Image", final_img)
@@ -156,9 +159,6 @@ def main():
     def shutdownhook():
 
         lane_detect_follower_object.clean_up()
-	finish_time = time.time()
-	fps = lane_detect_follower_object.count / (finish_time - lane_detect_follower_object.start_time)
-        print(fps)
         ctrl_c = True
 
     rospy.on_shutdown(shutdownhook)
@@ -166,7 +166,7 @@ def main():
     while not ctrl_c:
         rate.sleep()
 
-   
+
 
 if __name__ == '__main__':
     main()
